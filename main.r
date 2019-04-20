@@ -1,6 +1,7 @@
 library(gsubfn)
 library(DBI)
 
+TABLE_NAME = "precipitation"
 COLUMN_NAMES = c("Xref", "Yref", "Value", "Date")
 
 extract_header <- function(textfile_lines, header_linesize) {
@@ -60,6 +61,20 @@ load_rainfall_data <- function(filename, header_size=5) {
   return(table)
 }
 
+save_to_database <- function(data) {
+  con <- dbConnect(RSQLite::SQLite(), dbname="example_db.sqlite")
+  dbWriteTable(con, TABLE_NAME, data)
+  dbDisconnect(con)
+}
+
+load_from_database <- function() {
+  con <- dbConnect(RSQLite::SQLite(), dbname="example_db.sqlite")
+  data <- dbReadTable(con, TABLE_NAME)
+  dbDisconnect(con)
+  return(data)
+}
 
 filename <- paste(getwd(), "cru-ts-2-10.1991-2000-cutdown.pre", sep="/")
 rainfall_data <- load_rainfall_data(filename)
+save_to_database(rainfall_data)
+saved_data <- load_from_database()
