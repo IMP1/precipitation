@@ -63,7 +63,12 @@ load_rainfall_data <- function(filename, header_size=5) {
 
 save_to_database <- function(data) {
   con <- dbConnect(RSQLite::SQLite(), dbname="example_db.sqlite")
-  dbWriteTable(con, TABLE_NAME, data)
+  
+  # SQLite can't handle dates, so convert dates to strings.
+  sanitised_data <- data.frame(data)
+  sanitised_data$Date = as.character(sanitised_data$Date)
+  
+  dbWriteTable(con, TABLE_NAME, sanitised_data, overwrite=TRUE)
   dbDisconnect(con)
 }
 
@@ -71,6 +76,8 @@ load_from_database <- function() {
   con <- dbConnect(RSQLite::SQLite(), dbname="example_db.sqlite")
   data <- dbReadTable(con, TABLE_NAME)
   dbDisconnect(con)
+  # SQLite can't handle dates, so convert to dates from strings.
+  data$Date = as.Date(data$Date)
   return(data)
 }
 
@@ -78,3 +85,6 @@ filename <- paste(getwd(), "cru-ts-2-10.1991-2000-cutdown.pre", sep="/")
 rainfall_data <- load_rainfall_data(filename)
 save_to_database(rainfall_data)
 saved_data <- load_from_database()
+
+print(rainfall_data$Date[1])
+print(saved_data$Date[1])
