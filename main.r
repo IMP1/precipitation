@@ -1,24 +1,24 @@
 library(gsubfn)
 library(DBI)
 
-TABLE_NAME = "precipitation"
-COLUMN_NAMES = c("Xref", "Yref", "Value", "Date")
+TABLE_NAME   <- "precipitation"
+COLUMN_NAMES <- c("Xref", "Yref", "Value", "Date")
 
 extract_header <- function(textfile_lines, header_linesize) {
   header_text <- paste(head(textfile_lines, header_linesize), sep="\n", collapse='')
   
   years           <- as.integer(strapplyc(header_text, 
                                           "\\[Years=(\\d+)\\-(\\d+)\\]", 
-                                          simplify = TRUE))
+                                          simplify=TRUE))
   latitude_range  <- as.numeric(strapplyc(header_text, 
                                           "\\[Lati=\\s*(\\-?\\d+(?:\\.\\d+)?),\\s*(\\-?\\d+(?:\\.\\d+)?)\\]", 
-                                          simplify = TRUE))
+                                          simplify=TRUE))
   longitude_range <- as.numeric(strapplyc(header_text, 
                                           "\\[Long=\\s*(\\-?\\d+(?:\\.\\d+)?),\\s*(\\-?\\d+(?:\\.\\d+)?)\\]", 
-                                          simplify = TRUE))
+                                          simplify=TRUE))
   grid_coords     <- as.numeric(strapplyc(header_text, 
                                           "\\[Grid X,Y=\\s*(\\-?\\d+),\\s*(\\-?\\d+)\\]", 
-                                          simplify = TRUE))
+                                          simplify=TRUE))
   
   header_obj <- list(years=years, longitudes=longitude_range, 
                  latitudes=latitude_range, grid=grid_coords)
@@ -36,7 +36,7 @@ load_rainfall_data <- function(filename, header_size=5) {
 
   # Capture grid references.
   grid_references <- data[seq(1, length(data), year_count+1)]
-  grid_references <- as.integer(unlist(strapplyc(grid_references, "Grid\\-ref\\=\\s*(\\d+),\\s*(\\d+)", simplify = TRUE)))
+  grid_references <- as.integer(unlist(strapplyc(grid_references, "Grid\\-ref\\=\\s*(\\d+),\\s*(\\d+)", simplify=TRUE)))
   grid_references <- t(matrix(grid_references, nrow=2))
 
   # Remove grid reference rows.
@@ -81,8 +81,10 @@ load_from_database <- function() {
   return(data)
 }
 
-filename <- paste(getwd(), "cru-ts-2-10.1991-2000-cutdown.pre", sep="/")
-rainfall_data <- load_rainfall_data(filename)
+
+filename <- "cru-ts-2-10.1991-2000-cutdown.pre"
+filepath <- paste(getwd(), filename, sep="/")
+rainfall_data <- load_rainfall_data(filepath)
 save_to_database(rainfall_data)
 saved_data <- load_from_database()
 
