@@ -86,5 +86,3 @@ rainfall_data <- load_rainfall_data(filename)
 save_to_database(rainfall_data)
 saved_data <- load_from_database()
 
-print(rainfall_data$Date[1])
-print(saved_data$Date[1])
