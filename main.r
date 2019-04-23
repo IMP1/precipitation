@@ -108,6 +108,12 @@ average_sector_rainfall_over_time = aggregate(rainfall_data,
                                               by=list(rainfall_data$Date),
                                               FUN = mean)
 
+sector_increases = aggregate(rainfall_data,
+                             by=list(rainfall_data$Xref, rainfall_data$Yref),
+                             FUN=mean)
+
+print(rainfall_data[rainfall_data$Value >= 10000, ])
+
 plot(average_sector_rainfall_over_time$Date, 
      average_sector_rainfall_over_time$Value,
      type="l",
