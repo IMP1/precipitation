@@ -12,6 +12,7 @@ COLUMN_NAMES <- c("Xref", "Yref", "Value", "Date")
 extract_header <- function(textfile_lines, header_linesize) {
   header_text <- paste(head(textfile_lines, header_linesize), sep="\n", collapse='')
   
+  # Extract Relevant Info
   years           <- as.integer(strapplyc(header_text, 
                                           "\\[Years=(\\d+)\\-(\\d+)\\]", 
                                           simplify=TRUE))
