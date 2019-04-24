@@ -2,6 +2,8 @@ library(gsubfn)
 library(DBI)
 library(chron)
 
+source("db_access.r")
+
 TABLE_NAME   <- "precipitation"
 COLUMN_NAMES <- c("Xref", "Yref", "Value", "Date")
 
@@ -77,26 +79,6 @@ load_rainfall_data <- function(filename, header_size=5) {
   return(table)
 }
 
-save_to_database <- function(data, database_name) {
-  con <- dbConnect(RSQLite::SQLite(), dbname=database_name)
-  
-  # SQLite can't handle dates, so convert dates to strings.
-  sanitised_data <- data.frame(data)
-  sanitised_data$Date = as.character(sanitised_data$Date)
-  
-  dbWriteTable(con, TABLE_NAME, sanitised_data, overwrite=TRUE)
-  dbDisconnect(con)
-}
-
-load_from_database <- function(database_name) {
-  con <- dbConnect(RSQLite::SQLite(), dbname=database_name)
-  data <- dbReadTable(con, TABLE_NAME)
-  dbDisconnect(con)
-  # SQLite can't handle dates, so convert to dates from strings.
-  data$Date = as.Date(data$Date)
-  return(data)
-}
-
 
 filename <- "cru-ts-2-10.1991-2000-cutdown.pre"
 filepath <- paste(getwd(), filename, sep="/")
@@ -112,6 +94,7 @@ sector_increases = aggregate(rainfall_data,
                              by=list(rainfall_data$Xref, rainfall_data$Yref),
                              FUN=mean)
 
+# Find anomolous data bringing averages up.
 print(rainfall_data[rainfall_data$Value >= 10000, ])
 
 plot(average_sector_rainfall_over_time$Date, 
